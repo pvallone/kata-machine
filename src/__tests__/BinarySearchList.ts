@@ -18,6 +18,5 @@ test("binary search array", function() {
     const oneElement = [5];
     expect(binary_fn(oneElement, 5)).toEqual(true);
     expect(binary_fn(oneElement, 0)).toEqual(false);
-
 });
 
