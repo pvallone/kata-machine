@@ -1,0 +1,118 @@
+// Define ListNode without exporting it, keeping it private to the module
+class ListNode<T> {
+   public next: ListNode<T> | null;
+   public prev: ListNode<T> | null;
+   public val: T | undefined; // Allowing null for sentinel
+
+   constructor(val: T | undefined) {
+       this.val = val;
+       this.next = null;
+       this.prev = null;
+   }
+}
+
+export default class DoublyLinkedList<T> {
+   public length: number;
+   // Sentinel invariants:
+   // In an empty list, _sentinel.next = _sentinel.prev = _sentinel
+   // If there are elements in the list, _sentinel.next points to the front of the list, and _sentinel.prev points
+   // to the end of the list
+   private _sentinel: ListNode<T>;
+
+   constructor() {
+       this._sentinel = new ListNode<T>(undefined); // Sentinel node has no meaningful value
+       this._sentinel.next = this._sentinel;
+       this._sentinel.prev = this._sentinel;
+       this.length = 0;
+   }
+
+   prepend(item: T): void {
+       this.insertAt(item, 0);
+   }
+
+   insertAt(item: T, idx: number): void {
+       if (idx < 0 || idx > this.length) {
+           throw new RangeError("Index out of bounds"); // Improved error handling
+       }
+
+       const node = new ListNode<T>(item);
+
+       // Special case: inserting at the end
+       if (idx === this.length) {
+           const temp = this._sentinel.prev!;
+           temp.next = node;
+           node.prev = temp;
+           node.next = this._sentinel;
+           this._sentinel.prev = node;
+           this.length++;
+           return;
+       }
+
+       let cursor = this._sentinel.next!;
+       for (let i = 0; i < idx; i++) {
+           cursor = cursor.next!;
+       }
+
+       node.prev = cursor.prev;
+       cursor.prev!.next = node;
+       node.next = cursor;
+       cursor.prev = node;
+
+       this.length++;
+   }
+
+   append(item: T): void {
+       this.insertAt(item, this.length);
+   }
+
+   remove(item: T): T | undefined {
+       let found = false;
+       let foundIndex = -1;
+
+       let cursor = this._sentinel.next!;
+       for (let i = 0; i < this.length; i++) {
+           if (cursor.val === item) { // Use strict equality
+               found = true;
+               foundIndex = i;
+               break;
+           }
+           cursor = cursor.next!;
+       }
+
+       if (!found) {
+           return undefined;
+       }
+
+       return this.removeAt(foundIndex);
+   }
+
+   get(idx: number): T | undefined {
+       if (idx < 0 || idx >= this.length) {
+           return undefined;
+       }
+
+       let cursor = this._sentinel.next!;
+       for (let i = 0; i < idx; i++) {
+           cursor = cursor.next!;
+       }
+
+       return cursor.val || undefined;
+   }
+
+   removeAt(idx: number): T | undefined {
+       if (idx < 0 || idx >= this.length) {
+           return undefined;
+       }
+
+       let cursor = this._sentinel.next!;
+       for (let i = 0; i < idx; i++) {
+           cursor = cursor.next!;
+       }
+
+       const item = cursor.val;
+       cursor.prev!.next = cursor.next;
+       cursor.next!.prev = cursor.prev;
+       this.length--;
+       return item;
+   }
+}

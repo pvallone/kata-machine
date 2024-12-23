@@ -1,6 +1,7 @@
 module.exports = {
     dsa: [
-        "BinarySearchList"
+        "DoublyLinkedList",
+        "InsertionSort"
     ],
 }
 
